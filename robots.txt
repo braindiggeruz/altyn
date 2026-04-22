@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://altyn-therapy.uz/sitemap.xml
+
+# Block admin and API paths
+Disallow: /api/
+Disallow: /__manus__/
