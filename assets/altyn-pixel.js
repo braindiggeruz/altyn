@@ -59,13 +59,16 @@
   }
   window.altynTrack = trackEvent;
 
-  // ---------- 3. Click classification ------------------------------------
+  // ---------- 3. Click classification ----------
   function classifyClick(target) {
     if (!target) return null;
     var anchor = target.closest ? target.closest('a') : null;
     var btn = target.closest ? target.closest('button') : null;
     var el = anchor || btn;
     if (!el) return null;
+
+    // Explicit opt-out (UI controls like dots, mute toggle, modal close)
+    if (el.closest && el.closest('[data-altyn-skip-track="1"]')) return null;
 
     var href = (anchor && anchor.href ? anchor.href : '').toLowerCase();
     var text = ((el.innerText || el.textContent || '') + ' ' + (el.getAttribute('aria-label') || '')).trim();

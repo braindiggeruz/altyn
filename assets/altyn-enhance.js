@@ -1,8 +1,10 @@
 /* =====================================================================
-   Altyn Therapy — Conversion enhancements (vanilla, no deps)
-   1) Injects video testimonial section after the existing "Отзывы".
-   2) Mounts a sticky mobile bottom CTA bar (Telegram + WhatsApp + Quiz).
-   3) Hooks every CTA so window.fbq events fire (handled by altyn-pixel.js).
+   Altyn Therapy — Conversion enhancements (v2 — Apple-grade dark premium)
+   1) Hides legacy fake text testimonials painted by the React bundle
+   2) Injects a cinematic video testimonials section after the existing
+      "Истории трансформации" heading (which we keep as a trust anchor)
+   3) Inline-autoplay (muted) of the centered card — Reels-style hook
+   4) Mounts a sticky mobile bottom CTA bar (Записаться + WhatsApp)
    ===================================================================== */
 (function () {
   'use strict';
@@ -13,8 +15,6 @@
     'Здравствуйте! Хочу записаться на бесплатный разбор'
   );
 
-  // 7 testimonials (videos already optimised to ~540×960 H.264 + AAC).
-  // Captions are neutral — no fake names, no medical claims.
   var TESTIMONIALS = [
     { id: 1, label: 'Видеоотзыв клиента', caption: 'Спустя несколько сессий стало спокойнее' },
     { id: 2, label: 'История клиента',     caption: 'Увидела свой повторяющийся сценарий' },
@@ -26,12 +26,10 @@
   ];
 
   // ---------- Helpers ----------
-  function $(sel, root) { return (root || document).querySelector(sel); }
   function el(tag, attrs, html) {
     var e = document.createElement(tag);
     if (attrs) Object.keys(attrs).forEach(function (k) {
       if (k === 'class') e.className = attrs[k];
-      else if (k === 'data') Object.keys(attrs.data).forEach(function (d) { e.dataset[d] = attrs.data[d]; });
       else e.setAttribute(k, attrs[k]);
     });
     if (html != null) e.innerHTML = html;
@@ -40,42 +38,137 @@
   function track(event, params) {
     try { if (typeof window.altynTrack === 'function') window.altynTrack(event, params || {}); } catch (e) {}
   }
+  function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
 
-  // ---------- 1. Build video testimonials section ----------
+  // ============================================================
+  // 1. Hide legacy fake-quote testimonial cards (React-rendered)
+  // ============================================================
+  function hideFakeReviews() {
+    // Find the legacy reviews section (heading "Истории трансформации")
+    var sections = document.querySelectorAll('section');
+    var reviewsSec = null;
+    for (var i = 0; i < sections.length; i++) {
+      var h = sections[i].querySelector('h1, h2, h3');
+      if (h && /истории трансформации|^отзыв/i.test(h.innerText || '')) {
+        reviewsSec = sections[i];
+        break;
+      }
+    }
+    if (!reviewsSec) return false;
+
+    // Hide every fake quote card (.glass-card with italic quote text)
+    var fakeCards = reviewsSec.querySelectorAll('.glass-card');
+    var hiddenCount = 0;
+    fakeCards.forEach(function (c) {
+      if ((c.innerText || '').indexOf('«') !== -1) {
+        c.style.setProperty('display', 'none', 'important');
+        hiddenCount++;
+      }
+    });
+
+    // Once we've successfully replaced the section, hide it entirely.
+    // We mark the section so CSS finishes the job (covers reflows).
+    if (hiddenCount > 0 || !reviewsSec.dataset.altynFakeHidden) {
+      reviewsSec.dataset.altynFakeHidden = '1';
+      // Hide the whole section. The video section we inject lives right
+      // after it and carries its own beautiful header.
+      reviewsSec.style.setProperty('display', 'none', 'important');
+    }
+    return reviewsSec;
+  }
+
+  // ============================================================
+  // 2. Build video testimonials section
+  // ============================================================
   function buildSection() {
     var sec = el('section', { class: 'altyn-vt', 'data-altyn-vt': '1', 'aria-labelledby': 'altyn-vt-title' });
 
+    // Header
     var head = el('div', { class: 'altyn-vt__head' });
-    head.appendChild(el('span', { class: 'altyn-vt__eyebrow' }, 'Видеоистории'));
+    head.appendChild(el('span', { class: 'altyn-vt__eyebrow' }, 'Истории трансформации'));
     head.appendChild(el('h2', { class: 'altyn-vt__title', id: 'altyn-vt-title' },
-      'Реальные голоса. <em>Реальные истории.</em>'));
+      'Голоса клиентов. <em>Без сценариев.</em>'));
     head.appendChild(el('p', { class: 'altyn-vt__sub' },
-      'Короткие видеоотзывы клиентов, которые прошли разбор и продолжили работу со сценарием. Без сценариев и постановок — то, как они сами это рассказывают.'));
+      'Короткие видео‑истории людей, которые прошли разбор и продолжили работу. Свайпните карусель — каждое видео начнёт играть тихо, нажмите, чтобы услышать.'));
     sec.appendChild(head);
 
+    // Track wrap
     var trackWrap = el('div', { class: 'altyn-vt__track-wrap' });
     var trackEl = el('div', { class: 'altyn-vt__track', role: 'list' });
 
-    TESTIMONIALS.forEach(function (t) {
+    TESTIMONIALS.forEach(function (t, idx) {
       var card = el('button', {
         class: 'altyn-vt__card',
         type: 'button',
         role: 'listitem',
         'aria-label': t.label + '. ' + t.caption + '. Открыть видео',
-        'data-vt-id': String(t.id)
+        'data-vt-id': String(t.id),
+        'data-vt-index': String(idx)
       });
+
+      // poster (always visible until inline preview begins)
       var poster = el('img', {
         class: 'altyn-vt__poster',
         src: '/testimonials/posters/testimonial-' + t.id + '.jpg',
         alt: t.label,
-        loading: 'lazy',
+        loading: idx < 2 ? 'eager' : 'lazy',
         decoding: 'async',
         width: '540', height: '960'
       });
       card.appendChild(poster);
+
+      // inline-preview <video> (lazy, hidden until activated)
+      var media = el('video', {
+        class: 'altyn-vt__media',
+        playsinline: 'true',
+        muted: 'true',
+        loop: 'true',
+        preload: 'none',
+        'aria-hidden': 'true',
+        tabindex: '-1'
+      });
+      media.muted = true;
+      // src set lazily when card becomes active
+      media.dataset.src = '/testimonials/testimonial-' + t.id + '.mp4';
+      card.appendChild(media);
+
       card.appendChild(el('span', { class: 'altyn-vt__overlay' }));
       card.appendChild(el('span', { class: 'altyn-vt__play', 'aria-hidden': 'true' }));
 
+      // Mute toggle (only relevant when inline preview is on)
+      var mute = el('button', {
+        class: 'altyn-vt__mute',
+        type: 'button',
+        'aria-label': 'Включить звук',
+        'data-altyn-skip-track': '1'
+      });
+      mute.innerHTML =
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+      mute.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var vid = card.querySelector('.altyn-vt__media');
+        if (!vid) return;
+        if (vid.muted) {
+          vid.muted = false;
+          mute.setAttribute('aria-label', 'Выключить звук');
+          mute.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>';
+          track('ViewContent', {
+            content_name: 'inline_video_unmuted_' + t.id,
+            content_category: 'video_testimonial',
+            content_type: 'video'
+          });
+        } else {
+          vid.muted = true;
+          mute.setAttribute('aria-label', 'Включить звук');
+          mute.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+        }
+      });
+      card.appendChild(mute);
+
+      // meta
       var meta = el('span', { class: 'altyn-vt__meta' });
       meta.appendChild(el('span', { class: 'altyn-vt__label' }, t.label));
       meta.appendChild(el('p', { class: 'altyn-vt__caption' }, '«' + t.caption + '»'));
@@ -88,9 +181,26 @@
     trackWrap.appendChild(trackEl);
     sec.appendChild(trackWrap);
 
-    var hint = el('div', { class: 'altyn-vt__hint' }, '← свайп — ещё истории →');
-    sec.appendChild(hint);
+    // Dots indicator
+    var dotsEl = el('ul', { class: 'altyn-vt__dots', role: 'tablist', 'aria-label': 'Навигация по видеоотзывам' });
+    TESTIMONIALS.forEach(function (t, idx) {
+      var dot = el('button', {
+        class: 'altyn-vt__dot',
+        type: 'button',
+        role: 'tab',
+        'aria-label': 'Перейти к видео ' + (idx + 1),
+        'data-altyn-skip-track': '1',
+        'data-dot-index': String(idx)
+      });
+      dot.addEventListener('click', function () {
+        var card = trackEl.querySelector('.altyn-vt__card[data-vt-index="' + idx + '"]');
+        if (card) card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      });
+      dotsEl.appendChild(dot);
+    });
+    sec.appendChild(dotsEl);
 
+    // CTA
     var ctaWrap = el('div', { class: 'altyn-vt__cta-wrap' });
     var cta = el('a', {
       class: 'altyn-vt__cta',
@@ -106,9 +216,125 @@
     return sec;
   }
 
-  // ---------- 2. Modal lightbox ----------
-  var modal, modalVideo, currentTId = null;
+  // ============================================================
+  // 3. Carousel orchestration: active card detection, inline play,
+  //    dots sync, reveal animation
+  // ============================================================
+  function wireCarousel(sec) {
+    var trackEl = sec.querySelector('.altyn-vt__track');
+    var cards = sec.querySelectorAll('.altyn-vt__card');
+    var dots = sec.querySelectorAll('.altyn-vt__dot');
+    if (!trackEl || !cards.length) return;
 
+    var sectionInView = false;
+    var currentActive = -1;
+    var reduceMotion = prefersReducedMotion();
+
+    function setActive(idx) {
+      if (idx === currentActive) return;
+      cards.forEach(function (c, i) {
+        if (i === idx) c.dataset.active = '1'; else delete c.dataset.active;
+      });
+      dots.forEach(function (d, i) {
+        if (i === idx) d.dataset.active = '1'; else delete d.dataset.active;
+      });
+
+      // Stop previous video
+      if (currentActive >= 0 && cards[currentActive]) {
+        var prevV = cards[currentActive].querySelector('.altyn-vt__media');
+        if (prevV) {
+          try { prevV.pause(); } catch (e) {}
+          delete cards[currentActive].dataset.playing;
+        }
+      }
+
+      currentActive = idx;
+
+      // Start inline preview on the new active card if section is in view
+      if (sectionInView && !reduceMotion && idx >= 0) {
+        playInline(cards[idx]);
+      }
+    }
+
+    function playInline(card) {
+      if (!card) return;
+      var vid = card.querySelector('.altyn-vt__media');
+      if (!vid) return;
+      if (!vid.src && vid.dataset.src) {
+        vid.src = vid.dataset.src;
+      }
+      vid.muted = true;
+      vid.playsInline = true;
+      var p = vid.play();
+      if (p && p.then) {
+        p.then(function () {
+          card.dataset.playing = '1';
+        }).catch(function () { /* autoplay denied — no-op */ });
+      } else {
+        card.dataset.playing = '1';
+      }
+    }
+
+    function stopAllInline() {
+      cards.forEach(function (c) {
+        var v = c.querySelector('.altyn-vt__media');
+        if (v) { try { v.pause(); } catch (e) {} }
+        delete c.dataset.playing;
+      });
+    }
+
+    // Detect which card is centered in the track (for dots + active glow)
+    var rafId = 0;
+    function findCenteredCard() {
+      if (rafId) return;
+      rafId = requestAnimationFrame(function () {
+        rafId = 0;
+        var trackRect = trackEl.getBoundingClientRect();
+        var centerX = trackRect.left + trackRect.width / 2;
+        var bestIdx = 0;
+        var bestDist = Infinity;
+        for (var i = 0; i < cards.length; i++) {
+          var r = cards[i].getBoundingClientRect();
+          var d = Math.abs(r.left + r.width / 2 - centerX);
+          if (d < bestDist) { bestDist = d; bestIdx = i; }
+        }
+        setActive(bestIdx);
+      });
+    }
+    trackEl.addEventListener('scroll', findCenteredCard, { passive: true });
+    window.addEventListener('resize', findCenteredCard);
+
+    // IntersectionObserver — section enters/leaves viewport
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.target === sec) {
+            if (entry.isIntersecting) {
+              sec.dataset.revealed = '1';
+              if (entry.intersectionRatio > 0.35) {
+                sectionInView = true;
+                if (currentActive >= 0 && !reduceMotion) playInline(cards[currentActive]);
+              }
+            } else {
+              sectionInView = false;
+              stopAllInline();
+            }
+          }
+        });
+      }, { threshold: [0, 0.35, 0.7] });
+      io.observe(sec);
+    } else {
+      sec.dataset.revealed = '1';
+    }
+
+    // Initial active state
+    setTimeout(findCenteredCard, 100);
+  }
+
+  // ============================================================
+  // 4. Modal lightbox
+  // ============================================================
+  var modal, modalVideo, currentTId = null;
   function buildModal() {
     modal = el('div', { class: 'altyn-vt-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Видеоотзыв' });
     var inner = el('div', { class: 'altyn-vt-modal__inner' });
@@ -121,21 +347,13 @@
     });
     inner.appendChild(modalVideo);
 
-    var close = el('button', { class: 'altyn-vt-modal__close', type: 'button', 'aria-label': 'Закрыть' }, '×');
+    var close = el('button', { class: 'altyn-vt-modal__close', type: 'button', 'aria-label': 'Закрыть', 'data-altyn-skip-track': '1' }, '×');
     close.addEventListener('click', closeModal);
     inner.appendChild(close);
 
     var ctaRow = el('div', { class: 'altyn-vt-modal__cta' });
-    var primary = el('a', {
-      class: 'primary', href: TG, target: '_blank', rel: 'noopener',
-      'data-altyn-cta': 'vt-modal-tg'
-    }, 'Записаться');
-    var secondary = el('a', {
-      class: 'secondary', href: WA, target: '_blank', rel: 'noopener',
-      'data-altyn-cta': 'vt-modal-wa'
-    }, 'WhatsApp');
-    ctaRow.appendChild(primary);
-    ctaRow.appendChild(secondary);
+    ctaRow.appendChild(el('a', { class: 'primary', href: TG, target: '_blank', rel: 'noopener', 'data-altyn-cta': 'vt-modal-tg' }, 'Записаться'));
+    ctaRow.appendChild(el('a', { class: 'secondary', href: WA, target: '_blank', rel: 'noopener', 'data-altyn-cta': 'vt-modal-wa' }, 'WhatsApp'));
     inner.appendChild(ctaRow);
 
     modal.appendChild(inner);
@@ -147,7 +365,6 @@
     });
     document.body.appendChild(modal);
   }
-
   function openModal(t) {
     if (!modal) buildModal();
     currentTId = t.id;
@@ -156,23 +373,20 @@
     modal.classList.add('altyn-vt-modal--open');
     document.body.classList.add('altyn-vt-locked');
 
-    // attempt autoplay (muted-first to satisfy iOS); user can unmute via controls.
     modalVideo.muted = false;
-    var playPromise = modalVideo.play();
-    if (playPromise && playPromise.catch) {
-      playPromise.catch(function () {
+    var pp = modalVideo.play();
+    if (pp && pp.catch) {
+      pp.catch(function () {
         modalVideo.muted = true;
-        modalVideo.play().catch(function () { /* user will tap */ });
+        modalVideo.play().catch(function () {});
       });
     }
-
     track('ViewContent', {
       content_name: 'video_testimonial_' + t.id,
       content_category: 'video_testimonial',
       content_type: 'video'
     });
   }
-
   function closeModal() {
     if (!modal) return;
     modal.classList.remove('altyn-vt-modal--open');
@@ -182,61 +396,50 @@
     currentTId = null;
   }
 
-  // ---------- 3. Inject section into the page ----------
+  // ============================================================
+  // 5. Inject into the page
+  // ============================================================
   function findReviewsSection() {
-    // Heuristic: section whose first heading text contains "ОТЗЫВЫ" (case-insensitive).
     var sections = document.querySelectorAll('main section, body section');
     for (var i = 0; i < sections.length; i++) {
       var s = sections[i];
       if (s.dataset.altynVt) continue;
       var h = s.querySelector('h1, h2, h3');
-      if (h && /отзыв|истории трансформации/i.test(h.innerText || '')) {
-        return s;
-      }
+      if (h && /истории трансформации|^отзыв/i.test(h.innerText || '')) return s;
     }
     return null;
   }
-
   var injected = false;
   function tryInject() {
     if (injected) return true;
     var anchor = findReviewsSection();
     if (!anchor) return false;
     var section = buildSection();
-    if (anchor.nextSibling) {
-      anchor.parentNode.insertBefore(section, anchor.nextSibling);
-    } else {
-      anchor.parentNode.appendChild(section);
-    }
+    if (anchor.nextSibling) anchor.parentNode.insertBefore(section, anchor.nextSibling);
+    else anchor.parentNode.appendChild(section);
+    document.body.classList.add('altyn-vt-mounted');
+    wireCarousel(section);
     injected = true;
     return true;
   }
 
-  // ---------- 4. Sticky mobile CTA bar ----------
-  // The existing React app already paints its own fixed bottom bar
-  // ("Узнайте свой бессознательный сценарий … Пройти квиз"). To avoid
-  // stacking two bars and to give visitors a *richer* set of choices
-  // (Записаться + WhatsApp instead of just one button), we hide that
-  // legacy bar at runtime when ours is live.
+  // ============================================================
+  // 6. Sticky mobile CTA bar
+  // ============================================================
   function findReactBottomBar() {
     var fixedEls = document.querySelectorAll('div.fixed.bottom-0, [class*="fixed"][class*="bottom-0"]');
     for (var i = 0; i < fixedEls.length; i++) {
-      var el = fixedEls[i];
-      if (el.classList.contains('altyn-sticky-cta')) continue;
-      var cls = (el.className || '').toString();
-      // Only hide if it looks like a native CTA bar (burgundy bg + bottom + has CTA text)
-      if (/bg-\[#6B2D3E\]|bg-\[#6B2D3E\]\/[0-9]+|bg-\[#5A2434\]/.test(cls)) {
-        return el;
-      }
-      // Fallback: any small fixed bottom bar with a Telegram link
-      var rect = el.getBoundingClientRect();
-      if (rect.height > 0 && rect.height < 130 && el.querySelector('a[href*="t.me"], a[href*="wa.me"]')) {
-        return el;
+      var elx = fixedEls[i];
+      if (elx.classList.contains('altyn-sticky-cta')) continue;
+      var cls = (elx.className || '').toString();
+      if (/bg-\[#6B2D3E\]|bg-\[#5A2434\]/.test(cls)) return elx;
+      var rect = elx.getBoundingClientRect();
+      if (rect.height > 0 && rect.height < 130 && elx.querySelector('a[href*="t.me"], a[href*="wa.me"]')) {
+        return elx;
       }
     }
     return null;
   }
-
   function hideReactBar() {
     var bar = findReactBottomBar();
     if (bar && !bar.dataset.altynHidden) {
@@ -244,7 +447,6 @@
       bar.style.setProperty('display', 'none', 'important');
     }
   }
-
   function buildSticky() {
     var bar = el('div', { class: 'altyn-sticky-cta', role: 'navigation', 'aria-label': 'Быстрая запись' });
     bar.innerHTML =
@@ -257,9 +459,6 @@
         '<span>WhatsApp</span>' +
       '</a>';
     document.body.appendChild(bar);
-
-    // Show after user scrolls past hero (300px).
-    var lastScroll = 0;
     function onScroll() {
       var y = window.scrollY || window.pageYOffset || 0;
       if (y > 320) {
@@ -269,27 +468,29 @@
         bar.classList.remove('altyn-sticky-cta--visible');
         document.body.classList.remove('altyn-sticky-pad');
       }
-      lastScroll = y;
     }
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }
 
-  // ---------- 5. Bootstrap ----------
+  // ============================================================
+  // 7. Bootstrap
+  // ============================================================
   function init() {
-    // Try injecting now and via observer (React renders async).
     var sectionInjected = tryInject();
+    var fakeHidden = !!hideFakeReviews();
     var barHidden = false;
     var attempts = 0;
 
     function tick() {
       attempts++;
       if (!sectionInjected) sectionInjected = tryInject();
+      if (!fakeHidden) fakeHidden = !!hideFakeReviews();
       if (!barHidden) {
         var b = findReactBottomBar();
         if (b) { hideReactBar(); barHidden = true; }
       }
-      if ((sectionInjected && barHidden) || attempts > 60) {
+      if ((sectionInjected && fakeHidden && barHidden) || attempts > 80) {
         clearInterval(iv);
         if (mo) mo.disconnect();
       }
