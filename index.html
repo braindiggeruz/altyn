@@ -1100,7 +1100,7 @@
             <span>Бережно</span><span>Конфиденциально</span><span>Без оценок</span>
           </div>
           <div class="hero-cta">
-            <a class="btn btn-primary" href="/go/telegram?cta=site_hero" data-cta="site_hero" data-testid="hero-cta-primary">
+            <a class="btn btn-primary" href="/go/telegram?cta=site_hero_direct" data-cta="site_hero_direct" data-testid="hero-cta-primary">
               Хочу разбор за 10$
             </a>
             <a class="btn btn-ghost" href="#quiz" data-cta="hero_quiz" data-testid="hero-cta-quiz">
@@ -1150,7 +1150,7 @@
       </div>
       <div class="recognize-cta">
         <a class="btn btn-primary" href="#quiz" data-cta="recognize_to_quiz" data-testid="recognize-cta-quiz">Пройти короткий тест</a>
-        <a class="btn btn-ghost" href="/go/telegram?cta=recognize_diagnostic" data-cta="recognize_diagnostic" data-testid="recognize-cta-diagnostic">Хочу разбор за 10$</a>
+        <a class="btn btn-ghost" href="/go/telegram?cta=recognize_direct" data-cta="recognize_direct" data-testid="recognize-cta-diagnostic">Хочу разбор за 10$</a>
       </div>
     </div>
   </section>
@@ -1226,7 +1226,7 @@
         <p>10$ — это доступная диагностическая встреча, чтобы безопасно сделать первый шаг, понять формат и увидеть свой сценарий без большого финансового барьера.</p>
         <div class="micro">Без подписок · Без давления · Без обязательств продолжать</div>
         <div style="margin-top:32px;">
-          <a class="btn btn-primary" href="/go/telegram?cta=why10_cta" data-cta="why10_cta" data-testid="why10-cta">Хочу разбор за 10$</a>
+          <a class="btn btn-primary" href="/go/telegram?cta=why10_direct" data-cta="why10_direct" data-testid="why10-cta">Хочу разбор за 10$</a>
         </div>
       </div>
     </div>
@@ -1290,8 +1290,11 @@
           <h3 class="quiz-result-title" id="result-title"></h3>
           <p class="quiz-result-desc" id="result-desc"></p>
           <div class="quiz-result-cta">
-            <a class="btn btn-primary" id="result-cta" href="/go/telegram?cta=quiz_result" data-cta="quiz_result" data-testid="quiz-result-cta">
-              Разобрать мой сценарий за 10$
+            <a class="btn btn-primary" id="result-cta" href="/go/telegram?cta=quiz_result_direct" data-cta="quiz_result_direct" data-testid="quiz-result-cta">
+              Разобрать мой сценарий с Алтын
+            </a>
+            <a class="btn btn-ghost" id="result-cta-bot" href="/go/telegram?cta=quiz_bot" data-cta="quiz_bot" data-testid="quiz-result-cta-bot">
+              Оставить заявку через бот
             </a>
             <button class="quiz-restart" id="quiz-restart" type="button" data-testid="quiz-restart">Пройти ещё раз</button>
           </div>
@@ -1329,7 +1332,7 @@
             В работе — спокойный диагностический разговор, в котором становится понятнее, почему ситуация повторяется и какой первый шаг можно сделать. Это пространство, где можно быть собой и не объяснять, почему «уже не получается одной».
           </p>
           <div class="about-cta">
-            <a class="btn btn-primary" href="/go/telegram?cta=about_cta" data-cta="about_cta" data-testid="about-cta">Хочу разбор с Алтын</a>
+            <a class="btn btn-primary" href="/go/telegram?cta=about_direct" data-cta="about_direct" data-testid="about-cta">Хочу разбор с Алтын</a>
           </div>
         </div>
       </div>
@@ -1401,7 +1404,7 @@
             <h2>Пора понять, <em>почему это повторяется.</em></h2>
             <p>Начните с одного бережного разбора. 60 минут онлайн, 10$, конфиденциально и без оценок.</p>
             <div class="final-cta-row">
-              <a class="btn btn-primary" href="/go/telegram?cta=site_final_cta" data-cta="site_final_cta" data-testid="final-cta-primary">Хочу разбор за 10$</a>
+              <a class="btn btn-primary" href="/go/telegram?cta=final_cta_direct" data-cta="final_cta_direct" data-testid="final-cta-primary">Хочу разбор за 10$</a>
               <a class="btn btn-ghost" href="#quiz" data-cta="final_quiz" data-testid="final-cta-quiz">Пройти тест</a>
             </div>
           </div>
@@ -1421,7 +1424,7 @@
   <!-- ============ STICKY MOBILE CTA ============ -->
   <div class="sticky-mobile-cta" id="sticky-cta" role="region" aria-label="Главные действия" data-testid="sticky-mobile-cta">
     <a class="btn btn-ghost" href="#quiz" data-cta="sticky_quiz" data-testid="sticky-quiz">Пройти тест</a>
-    <a class="btn btn-primary" href="/go/telegram?cta=sticky_mobile" data-cta="sticky_mobile" data-testid="sticky-diagnostic">Хочу разбор</a>
+    <a class="btn btn-primary" href="/go/telegram?cta=sticky_mobile_direct" data-cta="sticky_mobile_direct" data-testid="sticky-diagnostic">Хочу разбор</a>
   </div>
 
   <!-- ============ APP LOGIC ============ -->
@@ -1592,6 +1595,7 @@
     var resultTitleEl = document.getElementById('result-title');
     var resultDescEl = document.getElementById('result-desc');
     var resultCtaEl = document.getElementById('result-cta');
+    var resultCtaBotEl = document.getElementById('result-cta-bot');
     var restartBtn = document.getElementById('quiz-restart');
 
     function renderStep(idx) {
@@ -1681,7 +1685,10 @@
       resultTitleEl.innerHTML = 'Ваш сценарий — <em>' + data.title + '</em>';
       resultDescEl.textContent = data.desc;
       // Append scenario to bridge URL for downstream attribution
-      resultCtaEl.setAttribute('href', '/go/telegram?cta=quiz_result&scenario=' + encodeURIComponent(top));
+      resultCtaEl.setAttribute('href', '/go/telegram?cta=quiz_result_direct&scenario=' + encodeURIComponent(top));
+      if (resultCtaBotEl) {
+        resultCtaBotEl.setAttribute('href', '/go/telegram?cta=quiz_bot&scenario=' + encodeURIComponent(top));
+      }
       resultCard.classList.add('active');
       // smooth focus
       try {

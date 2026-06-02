@@ -1,12 +1,16 @@
 /* =====================================================================
-   Altyn Therapy — /go/telegram bridge logic (Bot DM with start payload)
+   Altyn Therapy — /go/telegram bridge logic (route by CTA)
    ---------------------------------------------------------------------
-   Destination is the official lead bot @altyntherapyuzbot.
-   * Bots DO support /start payloads, so we forward a `start=<cta>` so the
-     bot knows which CTA the visitor came from.
-   * The `cta` query param on /go/telegram is the source CTA id
-     (site_hero, quiz_result, site_final_cta, sticky_mobile, etc.).
-   * A short `lead_id` is generated and posted to /api/lead-attribution so
+   HOTFIX: hot leads now go DIRECTLY to Altyn's personal DM @Altyn2304.
+   The bot @altyntherapyuzbot is kept only as a secondary path (quiz_bot)
+   and for any explicit ?cta=*_bot or ?bot=1 query.
+
+   Destination resolution (by ?cta=...):
+     * cta containing 'bot' (e.g. quiz_bot)  -> @altyntherapyuzbot ?start=<cta>
+     * everything else (hero/sticky/final/quiz_result_direct/etc.) -> @Altyn2304
+     Personal accounts do NOT support /start payloads, so direct links
+     are clean (no start payload).
+   * `lead_id` is generated and posted to /api/lead-attribution so
      UTM/fbclid/_fbp/_fbc are persisted for later Meta CAPI enrichment.
 
    Event ladder fired from this page (browser pixel + server CAPI):
@@ -16,9 +20,8 @@
 (function () {
   'use strict';
 
-  var TG_USERNAME = 'altyntherapyuzbot';
-  // Resolve the source CTA id from the bridge URL query (?cta=...). Fallback
-  // to a generic landing source if not provided.
+  var BOT_USERNAME    = 'altyntherapyuzbot';   // secondary path (quiz fallback)
+  var DIRECT_USERNAME = 'Altyn2304';           // hot leads → direct DM
   function getQueryParam(name) {
     try {
       var url = new URL(window.location.href);
@@ -34,9 +37,18 @@
     var clean = String(s).replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 60);
     return clean || 'site_landing';
   }
-  var START_PARAM = sanitizeStart(getQueryParam('cta') || getQueryParam('start') || 'site_landing');
-  var TG_APP_URL = 'tg://resolve?domain=' + TG_USERNAME + '&start=' + START_PARAM;
-  var TG_WEB_URL = 'https://t.me/' + TG_USERNAME + '?start=' + START_PARAM;
+  var CTA_RAW    = getQueryParam('cta') || getQueryParam('start') || 'site_landing';
+  var START_PARAM = sanitizeStart(CTA_RAW);
+
+  // Bot path is selected when CTA hints at the bot or explicit ?bot=1 query.
+  var WANT_BOT = (/(_bot$|^quiz_bot$|^quiz_result$)/i).test(CTA_RAW) || getQueryParam('bot') === '1';
+  var TG_USERNAME = WANT_BOT ? BOT_USERNAME : DIRECT_USERNAME;
+  var TG_APP_URL = WANT_BOT
+    ? ('tg://resolve?domain=' + BOT_USERNAME + '&start=' + START_PARAM)
+    : ('tg://resolve?domain=' + DIRECT_USERNAME);
+  var TG_WEB_URL = WANT_BOT
+    ? ('https://t.me/' + BOT_USERNAME + '?start=' + START_PARAM)
+    : ('https://t.me/' + DIRECT_USERNAME);
   var LEAD_PHRASE = 'Хочу разбор сценария за 10$';
   var OFFER = {
     offer_name: 'scenario_diagnostic_10usd',
@@ -261,8 +273,9 @@
   // -------- Step 1: Contact on bridge load --------
   var contactParams = {
     content_name: 'telegram_bot_bridge',
-    contact_channel: 'telegram_bot',
+    contact_channel: WANT_BOT ? 'telegram_bot' : 'telegram_direct',
     destination: TG_USERNAME,
+    route_type: WANT_BOT ? 'bot' : 'direct',
     start_cta: START_PARAM,
     device_type: device.device_type,
     browser_type: device.browser_type,
@@ -291,8 +304,9 @@
       track('Lead', 'tg_lead', {
         content_name: 'telegram_bot_open_lead',
         lead_type: OFFER.offer_name,
-        contact_channel: 'telegram_bot',
+        contact_channel: WANT_BOT ? 'telegram_bot' : 'telegram_direct',
         destination: TG_USERNAME,
+        route_type: WANT_BOT ? 'bot' : 'direct',
         start_cta: START_PARAM,
         device_type: device.device_type,
         browser_type: device.browser_type,
@@ -373,6 +387,8 @@
   window.altynBridge = {
     leadId: LEAD_ID,
     startCta: START_PARAM,
+    routeType: WANT_BOT ? 'bot' : 'direct',
+    destination: TG_USERNAME,
     fireTelegramOpenAttempt: fireTelegramOpenAttempt,
     device: device,
     phrase: LEAD_PHRASE,
