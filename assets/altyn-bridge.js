@@ -1,13 +1,13 @@
 /* =====================================================================
-   Altyn Therapy — /go/telegram bridge logic (Direct DM to Altyn)
+   Altyn Therapy — /go/telegram bridge logic (Bot DM with start payload)
    ---------------------------------------------------------------------
-   Destination is Altyn's personal Telegram @Altyn2304 (not a bot).
-   * Personal Telegram accounts do NOT support /start payloads, so the
-     deep-link is a clean tg://resolve?domain=Altyn2304 (no &start=).
-   * We STILL generate a short `lead_id` and post UTM/fbclid/_fbp/_fbc to
-     /api/lead-attribution to preserve campaign attribution analytics.
-     The lead_id is logged server-side; it just isn't passed via Telegram
-     start payload anymore.
+   Destination is the official lead bot @altyntherapyuzbot.
+   * Bots DO support /start payloads, so we forward a `start=<cta>` so the
+     bot knows which CTA the visitor came from.
+   * The `cta` query param on /go/telegram is the source CTA id
+     (site_hero, quiz_result, site_final_cta, sticky_mobile, etc.).
+   * A short `lead_id` is generated and posted to /api/lead-attribution so
+     UTM/fbclid/_fbp/_fbc are persisted for later Meta CAPI enrichment.
 
    Event ladder fired from this page (browser pixel + server CAPI):
      PageView -> Contact -> TelegramOpenAttempt -> Lead -> CopyLeadPhrase
@@ -16,9 +16,27 @@
 (function () {
   'use strict';
 
-  var TG_USERNAME = 'Altyn2304';
-  var TG_APP_URL = 'tg://resolve?domain=' + TG_USERNAME;
-  var TG_WEB_URL = 'https://t.me/' + TG_USERNAME;
+  var TG_USERNAME = 'altyntherapyuzbot';
+  // Resolve the source CTA id from the bridge URL query (?cta=...). Fallback
+  // to a generic landing source if not provided.
+  function getQueryParam(name) {
+    try {
+      var url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    } catch (e) {
+      var m = window.location.search.match(new RegExp('[?&]' + name + '=([^&#]*)'));
+      return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : null;
+    }
+  }
+  // Telegram /start payload allows [A-Za-z0-9_-], max 64 chars. Sanitize CTA.
+  function sanitizeStart(s) {
+    if (!s) return 'site_landing';
+    var clean = String(s).replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 60);
+    return clean || 'site_landing';
+  }
+  var START_PARAM = sanitizeStart(getQueryParam('cta') || getQueryParam('start') || 'site_landing');
+  var TG_APP_URL = 'tg://resolve?domain=' + TG_USERNAME + '&start=' + START_PARAM;
+  var TG_WEB_URL = 'https://t.me/' + TG_USERNAME + '?start=' + START_PARAM;
   var LEAD_PHRASE = 'Хочу разбор сценария за 10$';
   var OFFER = {
     offer_name: 'scenario_diagnostic_10usd',
@@ -196,9 +214,9 @@
   var contactEventId = getEventId('bridge_contact');
   var leadEventId = getEventId('tg_lead');
 
-  // Compose Telegram URLs. Personal profile @Altyn2304 does not support
-  // /start payloads — keep URLs clean. lead_id is still posted to
-  // /api/lead-attribution for campaign attribution.
+  // Compose Telegram URLs. Bot @altyntherapyuzbot supports /start payloads
+  // so we forward the CTA source via &start=. lead_id is posted to
+  // /api/lead-attribution for campaign attribution (UTM/fbclid mapping).
   function bridgeTgAppUrl() { return TG_APP_URL; }
   function bridgeTgWebUrl() { return TG_WEB_URL; }
 
@@ -245,6 +263,7 @@
     content_name: 'telegram_bot_bridge',
     contact_channel: 'telegram_bot',
     destination: TG_USERNAME,
+    start_cta: START_PARAM,
     device_type: device.device_type,
     browser_type: device.browser_type,
     in_app_browser_detected: device.in_app_browser_detected,
@@ -274,6 +293,7 @@
         lead_type: OFFER.offer_name,
         contact_channel: 'telegram_bot',
         destination: TG_USERNAME,
+        start_cta: START_PARAM,
         device_type: device.device_type,
         browser_type: device.browser_type,
         in_app_browser_detected: device.in_app_browser_detected,
@@ -352,6 +372,7 @@
 
   window.altynBridge = {
     leadId: LEAD_ID,
+    startCta: START_PARAM,
     fireTelegramOpenAttempt: fireTelegramOpenAttempt,
     device: device,
     phrase: LEAD_PHRASE,
