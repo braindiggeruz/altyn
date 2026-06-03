@@ -1,27 +1,33 @@
 /* =====================================================================
    Altyn Therapy — /go/telegram bridge logic (route by CTA)
    ---------------------------------------------------------------------
-   HOTFIX: hot leads now go DIRECTLY to Altyn's personal DM @Altyn2304.
-   The bot @altyntherapyuzbot is kept only as a secondary path (quiz_bot)
-   and for any explicit ?cta=*_bot or ?bot=1 query.
+   v5.2 FIX (2026-06): every click from the site now lands in the BOT
+   @altyntherapybot with a structured ?start= payload, so the user is
+   captured in CRM before anything else. Direct DM @Altyn2304 is only
+   reachable when ?direct=1 is explicitly passed (used as an internal
+   fallback button INSIDE the bot, never as the primary site CTA).
 
-   Destination resolution (by ?cta=...):
-     * cta containing 'bot' (e.g. quiz_bot)  -> @altyntherapyuzbot ?start=<cta>
-     * everything else (hero/sticky/final/quiz_result_direct/etc.) -> @Altyn2304
-     Personal accounts do NOT support /start payloads, so direct links
-     are clean (no start payload).
-   * `lead_id` is generated and posted to /api/lead-attribution so
-     UTM/fbclid/_fbp/_fbc are persisted for later Meta CAPI enrichment.
+   CTA → start_param mapping:
+     site_hero_direct      -> src_site_hero
+     recognize_direct      -> src_site_hot_10usd
+     why10_direct          -> src_site_hot_10usd
+     quiz_result_direct    -> src_site_quiz
+     quiz_bot              -> src_site_quiz
+     about_direct          -> src_site_hero
+     final_cta_direct      -> src_site_hero
+     sticky_mobile_direct  -> src_site_sticky
+     site_footer / footer  -> src_site_footer
+     faq / site_faq        -> src_site_faq
+     (anything else)       -> src_site_hero
 
    Event ladder fired from this page (browser pixel + server CAPI):
      PageView -> Contact -> TelegramOpenAttempt -> Lead -> CopyLeadPhrase
-   Lead is deduplicated to one fire per session via sessionStorage flag.
    ===================================================================== */
 (function () {
   'use strict';
 
-  var BOT_USERNAME    = 'altyntherapyuzbot';   // secondary path (quiz fallback)
-  var DIRECT_USERNAME = 'Altyn2304';           // hot leads → direct DM
+  var BOT_USERNAME    = 'altyntherapybot';     // canonical capture bot
+  var DIRECT_USERNAME = 'Altyn2304';           // only when ?direct=1
   function getQueryParam(name) {
     try {
       var url = new URL(window.location.href);
@@ -31,17 +37,53 @@
       return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : null;
     }
   }
-  // Telegram /start payload allows [A-Za-z0-9_-], max 64 chars. Sanitize CTA.
+  // Telegram /start payload allows [A-Za-z0-9_-], max 64 chars. Sanitize.
   function sanitizeStart(s) {
-    if (!s) return 'site_landing';
+    if (!s) return 'src_site_hero';
     var clean = String(s).replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 60);
-    return clean || 'site_landing';
+    return clean || 'src_site_hero';
   }
-  var CTA_RAW    = getQueryParam('cta') || getQueryParam('start') || 'site_landing';
-  var START_PARAM = sanitizeStart(CTA_RAW);
+  // Map legacy CTA tokens to canonical src_* deeplink payloads.
+  function mapCtaToStartParam(cta) {
+    if (!cta) return 'src_site_hero';
+    var c = String(cta).toLowerCase();
+    // Already a canonical src_* / cmp_* / ad_* / ref_* payload — pass through.
+    if (/^(src|cmp|ad|ref)_[a-z0-9_]+$/i.test(c)) return sanitizeStart(c);
+    var table = {
+      'site_hero_direct':      'src_site_hero',
+      'site_hero':             'src_site_hero',
+      'recognize_direct':      'src_site_hot_10usd',
+      'why10_direct':          'src_site_hot_10usd',
+      'quiz_result_direct':    'src_site_quiz',
+      'quiz_bot':              'src_site_quiz',
+      'quiz_result':           'src_site_quiz',
+      'about_direct':          'src_site_hero',
+      'final_cta_direct':      'src_site_hero',
+      'sticky_mobile_direct':  'src_site_sticky',
+      'site_sticky':           'src_site_sticky',
+      'site_footer':           'src_site_footer',
+      'footer':                'src_site_footer',
+      'site_faq':              'src_site_faq',
+      'faq':                   'src_site_faq',
+      'site_landing':          'src_site_hero'
+    };
+    if (table[c]) return table[c];
+    // Generic suffix rules so any future *_direct CTA still routes correctly.
+    if (/_direct$/.test(c) || /_bot$/.test(c)) {
+      var base = c.replace(/_direct$/, '').replace(/_bot$/, '');
+      if (table[base]) return table[base];
+      return 'src_site_' + sanitizeStart(base).replace(/^src_/, '').replace(/^site_/, '').slice(0, 50);
+    }
+    return sanitizeStart('src_site_' + c);
+  }
 
-  // Bot path is selected when CTA hints at the bot or explicit ?bot=1 query.
-  var WANT_BOT = (/(_bot$|^quiz_bot$|^quiz_result$)/i).test(CTA_RAW) || getQueryParam('bot') === '1';
+  var CTA_RAW    = getQueryParam('cta') || getQueryParam('start') || 'site_hero';
+  var START_PARAM = mapCtaToStartParam(CTA_RAW);
+
+  // ROUTE: bot (default) unless explicit ?direct=1 (escape hatch).
+  // Old ?bot=1 still forces the bot (kept for backward compat).
+  var WANT_DIRECT = getQueryParam('direct') === '1';
+  var WANT_BOT = !WANT_DIRECT;
   var TG_USERNAME = WANT_BOT ? BOT_USERNAME : DIRECT_USERNAME;
   var TG_APP_URL = WANT_BOT
     ? ('tg://resolve?domain=' + BOT_USERNAME + '&start=' + START_PARAM)
