@@ -11,7 +11,7 @@
 #     META_CAPI_ACCESS_TOKEN   = <secret from Meta Events Manager>
 #     META_TEST_EVENT_CODE     = <only while testing, then DELETE>
 #     ADMIN_SECRET             = <long random>
-#     TELEGRAM_BOT_TOKEN       = <bot @altyndirectbot token>
+#     TELEGRAM_BOT_TOKEN       = <bot @altyntherapybot token (canonical capture bot)>
 #     TELEGRAM_WEBHOOK_SECRET  = <long random — for future webhook>
 #     TELEGRAM_NOTIFY_CHAT_ID  = -1003406252597
 #     INTENT_SECRET            = <long random — used by NextBot/CRM to call /api/telegram/qualified-intent>

@@ -191,7 +191,7 @@ export async function onRequestPost(context) {
     lead_quality: 'qualified',
     lead_source: 'telegram_bot',
     contact_channel: 'telegram_bot',
-    destination: 'Altyn2304',
+    destination: 'altyntherapybot',
     value: 10,
     currency: 'USD',
     lead_id: leadId,
