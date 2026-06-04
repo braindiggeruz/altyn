@@ -1137,6 +1137,57 @@
     }
     @media (min-width: 900px) { .final-cta-row { justify-content: flex-start; } }
 
+    /* ----- CERTIFICATES TRUST BLOCK ----- */
+    .cert-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-top: 28px;
+    }
+    @media (min-width: 760px) { .cert-grid { grid-template-columns: 1fr 1fr; gap: 22px; } }
+    .cert-card {
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, rgba(253,246,236,0.04) 0%, rgba(201,169,110,0.04) 100%);
+      border: 1px solid rgba(201,169,110,0.22);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 250ms, transform 250ms;
+    }
+    .cert-card:hover { border-color: rgba(201,169,110,0.45); transform: translateY(-2px); }
+    .cert-card-img {
+      background: #fdf6ec;
+      padding: 14px;
+      border-bottom: 1px solid rgba(201,169,110,0.18);
+    }
+    .cert-card-img img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: calc(var(--radius-sm) - 4px);
+    }
+    .cert-card-body { padding: 16px 18px 18px; }
+    .cert-card-title {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0 0 6px;
+      letter-spacing: 0.01em;
+    }
+    .cert-card-meta { font-size: 13px; color: var(--ink-dim); line-height: 1.5; margin: 0; }
+    .cert-disclaimer {
+      margin-top: 24px;
+      padding: 14px 18px;
+      background: rgba(253,246,236,0.03);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink-dim);
+      font-style: italic;
+    }
+
     /* ----- FOOTER ----- */
     footer {
       padding: 40px 0 24px;
@@ -1481,6 +1532,55 @@
       </div>
     </div>
   </section>
+
+  <!-- ============ CERTIFICATES — TRUST / E-E-A-T ============ -->
+  <section id="certificates" data-section="certificates">
+    <div class="container">
+      <div class="section-head reveal" style="max-width:780px;">
+        <div class="eyebrow">Обучение и квалификация Алтын</div>
+        <h2>Образовательная <em>подготовка</em> специалиста.</h2>
+        <p class="lead">Алтын проходила обучение в Academy of Hypnotherapy. Сертификаты показывают образовательную подготовку и не являются обещанием результата.</p>
+      </div>
+      <div class="cert-grid" data-testid="certificates-grid">
+        <figure class="cert-card reveal" data-testid="cert-master">
+          <div class="cert-card-img">
+            <picture>
+              <source type="image/webp" srcset="/assets/certificates/master-hypnotherapist.webp" />
+              <img src="/assets/certificates/master-hypnotherapist.jpg"
+                   alt="Сертификат обучения Алтын в Academy of Hypnotherapy"
+                   loading="lazy"
+                   decoding="async"
+                   width="1200" height="847" />
+            </picture>
+          </div>
+          <figcaption class="cert-card-body">
+            <div class="cert-card-title">Master Hypnotherapist</div>
+            <p class="cert-card-meta">Сертификат о прохождении обучения · Academy of Hypnotherapy · 01.06.2024</p>
+          </figcaption>
+        </figure>
+        <figure class="cert-card reveal" data-testid="cert-regression">
+          <div class="cert-card-img">
+            <picture>
+              <source type="image/webp" srcset="/assets/certificates/regression-therapist.webp" />
+              <img src="/assets/certificates/regression-therapist.jpg"
+                   alt="Сертификат обучения Алтын по работе со сценариями"
+                   loading="lazy"
+                   decoding="async"
+                   width="1200" height="847" />
+            </picture>
+          </div>
+          <figcaption class="cert-card-body">
+            <div class="cert-card-title">Regression Therapist</div>
+            <p class="cert-card-meta">Сертификат о прохождении обучения · Academy of Hypnotherapy · 17.06.2024</p>
+          </figcaption>
+        </figure>
+      </div>
+      <p class="cert-disclaimer" data-testid="cert-disclaimer">
+        Разбор сценария не является медицинской услугой, постановкой диагноза или заменой обращения к врачу или профильному специалисту.
+      </p>
+    </div>
+  </section>
+
 
   <!-- ============ FAQ ============ -->
   <section id="faq" data-section="faq">
