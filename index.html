@@ -162,6 +162,14 @@
             "@type": "Answer",
             "text": "Да. Можно использовать любое имя, в том числе из мессенджера. Никаких документов не требуется."
           }
+        },
+        {
+          "@type": "Question",
+          "name": "Почему запись через Telegram-бот, а не сразу в личку?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Через бот заявка не теряется и сохраняется в одном месте. Вы можете пройти тест, описать запрос и оставить удобное время. Алтын увидит заявку и свяжется для подтверждения. Никакой автоматической оплаты на сайте нет."
+          }
         }
       ]
     },
@@ -1242,6 +1250,122 @@
     .reveal { opacity: 0; transform: translateY(14px); transition: opacity 800ms ease, transform 800ms cubic-bezier(.2,.7,.2,1); }
     .reveal.shown { opacity: 1; transform: translateY(0); }
 
+    /* ----- HERO MICRO DISCLAIMER (P2-1) ----- */
+    .hero-micro {
+      margin: 14px 0 0;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--ink-faint);
+      letter-spacing: 0.01em;
+      max-width: 520px;
+    }
+    @media (max-width: 899px) {
+      .hero-micro {
+        margin-top: 12px;
+        font-size: 12px;
+        color: rgba(253,246,236,0.72);
+        text-shadow: 0 1px 8px rgba(0,0,0,0.55);
+      }
+    }
+
+    /* ----- SCOPE BLOCK (P2-2 "Что не входит в 10$") ----- */
+    .scope-wrap {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 36px 28px;
+      background: linear-gradient(135deg, rgba(253,246,236,0.04) 0%, rgba(212,165,165,0.04) 100%);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+    }
+    @media (min-width: 768px) { .scope-wrap { padding: 48px 44px; } }
+    .scope-wrap .scope-lead {
+      font-size: 16px;
+      color: var(--ink-dim);
+      margin: 0 0 22px;
+    }
+    .scope-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 22px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 700px) { .scope-list { grid-template-columns: 1fr 1fr; gap: 14px; } }
+    .scope-list li {
+      position: relative;
+      padding: 14px 18px 14px 44px;
+      background: rgba(253,246,236,0.03);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+    .scope-list li::before {
+      content: "—";
+      position: absolute;
+      left: 18px;
+      top: 13px;
+      color: var(--gold);
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .scope-close {
+      margin: 0;
+      padding: 16px 18px;
+      background: rgba(201,169,110,0.06);
+      border-left: 2px solid var(--gold);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 17px;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+
+    /* ----- WHY BOT BLOCK (P2-3) ----- */
+    .whybot-wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 36px 28px;
+      background:
+        radial-gradient(60% 80% at 100% 0%, rgba(201,169,110,0.10) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(42,18,24,0.50) 0%, rgba(107,45,62,0.20) 100%);
+      border: 1px solid rgba(201,169,110,0.22);
+      border-radius: var(--radius);
+    }
+    @media (min-width: 768px) { .whybot-wrap { padding: 52px 48px; } }
+    .whybot-wrap p.lead { margin-bottom: 22px; }
+    .whybot-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 26px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 700px) { .whybot-list { grid-template-columns: 1fr 1fr; gap: 12px; } }
+    .whybot-list li {
+      position: relative;
+      padding: 12px 16px 12px 36px;
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--ink-dim);
+    }
+    .whybot-list li::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      top: 19px;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 4px rgba(201,169,110,0.14);
+    }
+    .whybot-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+
     /* Reduce motion */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
@@ -1284,6 +1408,9 @@
               Узнать свой сценарий
             </a>
           </div>
+          <p class="hero-micro" data-testid="hero-micro-disclaimer">
+            Без оплаты на сайте · время согласуем в Telegram-боте · это не медицинская услуга
+          </p>
         </div>
         <div class="hero-aside reveal">
           <div class="hero-portrait" role="img" aria-label="Атмосфера разговора у Алтын: свеча, чай, записная книжка, бордовая стена">
@@ -1403,7 +1530,7 @@
       </div>
       <div class="recognize-grid" data-testid="not-for-whom-list">
         <div class="recognize-item reveal">Если вы переживаете острое кризисное состояние — обратитесь к профильному специалисту или в экстренные службы 112 / 103.</div>
-        <div class="recognize-item reveal">Если нужна постановка диагноза, медицинское или психиатрическое сопровождение — это к профильному врачу.</div>
+        <div class="recognize-item reveal">Если нужна медицинская оценка состояния, медицинское или психиатрическое сопровождение — это к профильному врачу.</div>
         <div class="recognize-item reveal">Если нужна длительная терапия или сопровождение в кризисе — разбор за 60 минут не закрывает эту задачу.</div>
         <div class="recognize-item reveal">Если хочется услышать «он вернётся» или «виноват он/она» — Алтын работает иначе: бережно, без оценок и без обещаний.</div>
       </div>
@@ -1422,6 +1549,25 @@
         <div style="margin-top:32px;">
           <a class="btn btn-primary" href="/go/telegram?cta=why10_direct" data-cta="why10_direct" data-testid="why10-cta">Хочу разбор за 10$</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCOPE: WHAT IS NOT INCLUDED (P2-2) ============ -->
+  <section id="scope-10" data-section="scope_10">
+    <div class="container">
+      <div class="scope-wrap reveal" data-testid="scope-block">
+        <div class="eyebrow">Честные границы формата</div>
+        <h2>Что не входит в разбор за <em>10$</em></h2>
+        <p class="scope-lead">Чтобы формат был понятным заранее, мы честно обозначаем границы.</p>
+        <ul class="scope-list" data-testid="scope-list">
+          <li>курс терапии или длительное сопровождение</li>
+          <li>работа в остром кризисе и неотложная помощь</li>
+          <li>медицинская консультация или помощь профильного врача</li>
+          <li>юридические рекомендации</li>
+          <li>обещание, что другой человек изменится или вернётся</li>
+        </ul>
+        <p class="scope-close">10$ — это один бережный разбор повторяющегося сценария. Решение продолжать или нет всегда остаётся за вами.</p>
       </div>
     </div>
   </section>
@@ -1576,11 +1722,33 @@
         </figure>
       </div>
       <p class="cert-disclaimer" data-testid="cert-disclaimer">
-        Разбор сценария не является медицинской услугой, постановкой диагноза или заменой обращения к врачу или профильному специалисту.
+        Разбор сценария не является медицинской услугой, медицинской оценкой состояния или заменой обращения к врачу или профильному специалисту.
       </p>
     </div>
   </section>
 
+
+  <!-- ============ WHY TELEGRAM BOT (P2-3) ============ -->
+  <section id="why-bot" data-section="why_bot">
+    <div class="container">
+      <div class="whybot-wrap reveal" data-testid="whybot-block">
+        <div class="eyebrow">Как происходит запись</div>
+        <h2>Почему через <em>Telegram-бот?</em></h2>
+        <p class="lead">Бот нужен не для давления, а чтобы заявка не потерялась. Вы можете спокойно пройти короткий тест, описать запрос своими словами и оставить удобное время. Алтын увидит вашу заявку и свяжется для подтверждения.</p>
+        <ul class="whybot-list" data-testid="whybot-list">
+          <li>заявка сохраняется в одном месте</li>
+          <li>Алтын видит ваш сценарий и удобное время</li>
+          <li>можно пройти тест или сразу оставить заявку</li>
+          <li>без автоматической оплаты на сайте</li>
+          <li>без давления и навязанных решений</li>
+        </ul>
+        <div class="whybot-cta">
+          <a class="btn btn-primary" href="#quiz" data-cta="whybot_quiz" data-testid="whybot-cta-quiz">Пройти тест сценария</a>
+          <a class="btn btn-ghost" href="/go/telegram?cta=site_hero_direct" data-cta="site_hero_direct" data-testid="whybot-cta-direct">Сразу в Telegram-бот</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- ============ FAQ ============ -->
   <section id="faq" data-section="faq">
@@ -1617,6 +1785,10 @@
         <details class="faq-item reveal" data-testid="faq-item">
           <summary>Как записаться?</summary>
           <p>Нажмите «Хочу разбор за 10$» — вы попадёте в Telegram, где Алтын или её ассистент согласуют удобное время.</p>
+        </details>
+        <details class="faq-item reveal" data-testid="faq-item">
+          <summary>Почему запись через Telegram-бот, а не сразу в личку?</summary>
+          <p>Через бот заявка не теряется и сохраняется в одном месте. Вы можете пройти тест, описать запрос и оставить удобное время. Алтын увидит заявку и свяжется для подтверждения. Никакой автоматической оплаты на сайте нет.</p>
         </details>
         <details class="faq-item reveal" data-testid="faq-item">
           <summary>Что происходит после заявки?</summary>
