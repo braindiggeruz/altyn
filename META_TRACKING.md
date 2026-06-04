@@ -1,7 +1,12 @@
 # Meta Pixel + Conversions API — Altyn Therapy
 
-Документация по событийной разметке, серверному CAPI, Telegram-боту
-`@altyndirectbot` и развёртыванию на Cloudflare Pages.
+Документация по событийной разметке, серверному CAPI, каноническому
+Telegram-боту `@altyntherapybot` и развёртыванию на Cloudflare Pages.
+
+> **Canonical bot:** `@altyntherapybot`. Все CTA сайта ведут именно
+> сюда через `/go/telegram` bridge с `?start=<src_*>` payload. Direct
+> DM `@Altyn2304` доступен только как escape-hatch (внутренняя кнопка
+> внутри бота), никогда как primary CTA сайта.
 
 ## Архитектура
 
@@ -23,13 +28,13 @@
                 │   3. fbq+CAPI Contact          │         └─────────────────────────┘
                 │   4. fbq+CAPI Lead             │                       ▲
                 │   5. open tg://resolve?domain  │                       │
-                │      =altyndirectbot&start=    │                       │ recover UTM
-                │      <lead_id>                 │                       │ by lead_id
+                │      =altyntherapybot&start=   │                       │ recover UTM
+                │      <src_site_*>              │                       │ by lead_id
                 └──────────────┬─────────────────┘                       │
                                │                                          │
                                ▼                                          │
                 ┌────────────────────────────────┐                        │
-                │ @altyndirectbot (NextBot GPT)  │                        │
+                │ @altyntherapybot (NextBot GPT) │                        │
                 │   • /start <lead_id>           │                        │
                 │   • GPT dialog                 │                        │
                 │   • button "Хочу разбор за 10$"│                        │
@@ -51,7 +56,8 @@
 
 ## Telegram bot status (audit)
 
-* Bot: **@altyndirectbot**, id `8790982465`, name "Алтын | Гипнотерапевт"
+* Canonical bot: **@altyntherapybot** — capture-bot, all site CTAs land here via `/go/telegram?cta=...&start=src_site_*`.
+* Legacy reference (historical): @altyndirectbot, id `8790982465`. NextBot GPT automation is hosted on the canonical bot. Direct DM @Altyn2304 is only a secondary escape-hatch.
 * **Webhook is already set on `https://app.nextbot.ru/...` (NextBot GPT platform).**
   We do NOT touch it. Instead NextBot calls our endpoint `/api/telegram/qualified-intent`
   when it detects a qualified intent (button press or keyword match).
@@ -85,7 +91,7 @@
 | `META_TEST_EVENT_CODE` | ⚙️ только на время тестов | Удалить после ввода в продакшн |
 | `ADMIN_SECRET` | ✅ | Длинный random для `/api/meta/qualified-lead` |
 | `INTENT_SECRET` | ⭐ рекомендуется | Длинный random для `/api/telegram/qualified-intent` (отдельный от ADMIN, чтобы давать NextBot отдельный токен). Если не задан — используется `ADMIN_SECRET`. |
-| `TELEGRAM_BOT_TOKEN` | ✅ | Токен @altyndirectbot. Нужен для отправки уведомлений в группу. |
+| `TELEGRAM_BOT_TOKEN` | ✅ | Токен @altyntherapybot (canonical bot). Нужен для отправки уведомлений в группу. |
 | `TELEGRAM_WEBHOOK_SECRET` | ⚙️ | Зарезервирован на случай, если когда-то будем брать webhook на себя (сейчас на NextBot). |
 | `TELEGRAM_NOTIFY_CHAT_ID` | ✅ | `-1003406252597` |
 
@@ -210,7 +216,7 @@ curl -X POST https://altyn-therapy.uz/api/meta/qualified-lead \
 ### Уже сделано автоматически
 - ✅ Pixel один (id `2475663283169925`), guard `window.__ALTYN_PIXEL_INITED__`
 - ✅ Все hardcoded `t.me/Altyn2304` в React-bundle переписываются на `/go/telegram` через MutationObserver в `altyn-pixel.js`
-- ✅ Bridge ведёт на `@altyndirectbot?start=<lead_id>`
+- ✅ Bridge ведёт на `@altyntherapybot?start=src_site_*` (canonical CTA path)
 - ✅ `lead_id` сохраняется в KV перед редиректом
 - ✅ Telegram bot можно postить в notify-группу (проверено)
 - ✅ Cloudflare KV namespace `ALTYN_LEAD_ATTRIBUTION` создан (id `0f8fa30a18af4c799029f4df18b8d6d7`)
@@ -237,7 +243,7 @@ Cloudflare → Pages → altyn-therapy → Settings → Environment variables (P
 
 | Имя | Значение |
 |---|---|
-| `TELEGRAM_BOT_TOKEN` | (ваш токен @altyndirectbot — храните как **Encrypted**) |
+| `TELEGRAM_BOT_TOKEN` | (ваш токен @altyntherapybot — храните как **Encrypted**) |
 | `TELEGRAM_NOTIFY_CHAT_ID` | `-1003406252597` |
 | `INTENT_SECRET` | сгенерировать 32+ random байт (например `openssl rand -hex 32`) — **Encrypted** |
 | `TELEGRAM_WEBHOOK_SECRET` | сгенерировать random 32+ байт — **Encrypted** (резерв) |
@@ -305,7 +311,7 @@ Cloudflare → Pages → altyn-therapy → Settings → Environment variables (P
 * Desktop Chrome — открывается web.telegram.org
 
 #### 9. Security cleanup (после успешного теста)
-- Ротировать TELEGRAM_BOT_TOKEN через @BotFather (`/token` → выбрать @altyndirectbot → `/revoke`) и обновить в Cloudflare
+- Ротировать TELEGRAM_BOT_TOKEN через @BotFather (`/token` → выбрать @altyntherapybot → `/revoke`) и обновить в Cloudflare
 - Ротировать Cloudflare API token (Profile → API Tokens → Roll)
 - Отозвать GitHub PAT (если ещё не сделано)
 - Удалить `META_TEST_EVENT_CODE` из Cloudflare
