@@ -1137,6 +1137,9 @@
     }
     .footer-inner .brand { font-size: 18px; }
     .footer-meta { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.7; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: center; }
+    .footer-links a { color: var(--ink-faint); font-size: 12.5px; letter-spacing: 0.04em; text-decoration: none; transition: color 200ms; }
+    .footer-links a:hover { color: var(--gold-bright); }
     @media (min-width: 768px) {
       .footer-inner { flex-direction: row; justify-content: space-between; text-align: left; }
     }
@@ -1524,7 +1527,14 @@
   <footer>
     <div class="container footer-inner">
       <div class="brand">ALTYN <span>·</span> Therapy</div>
-      <div class="footer-meta">© <span id="year">2026</span> · Бережно · Конфиденциально</div>
+      <nav class="footer-links" aria-label="Документы и контакты">
+        <a href="/privacy/" data-testid="footer-privacy">Конфиденциальность</a>
+        <a href="/terms/" data-testid="footer-terms">Условия</a>
+        <a href="/contact/" data-testid="footer-contact">Контакты</a>
+        <a href="/disclaimer/" data-testid="footer-disclaimer">Дисклеймер</a>
+        <a href="/uz/" hreflang="uz" data-testid="footer-uz">O‘zbekcha</a>
+      </nav>
+      <div class="footer-meta">© <span id="year">2026</span> · Бережно · Конфиденциально · Это не медицинская услуга</div>
     </div>
   </footer>
 
