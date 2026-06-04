@@ -196,23 +196,21 @@
   <!-- ===== ANALYTICS HOOKS (env-driven, no hardcoded GA4/GTM yet) ===== -->
   <!-- Meta Pixel — already active. Replace ID via build step if needed. -->
   <script>window.__META_PIXEL_ID__ = '2475663283169925';</script>
+
+  <!-- Google tag (gtag.js) — Google Ads + GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z7V0FSGE4Y"></script>
   <script>
-    // GA4 / GTM placeholder. Inject IDs via build env when available.
-    // window.__GA4_ID__ = ''; // e.g. 'G-XXXXXXXX'
-    // window.__GTM_ID__ = ''; // e.g. 'GTM-XXXXXXX'
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Z7V0FSGE4Y');
+    // Expose ID for custom event mirroring in track() below.
+    window.__GA4_ID__ = 'G-Z7V0FSGE4Y';
+  </script>
+  <script>
+    // Optional GTM hook (kept for future use; no-op until __GTM_ID__ is set).
     (function(){
-      var GA4 = window.__GA4_ID__;
       var GTM = window.__GTM_ID__;
-      if (GA4) {
-        var s = document.createElement('script');
-        s.async = true;
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA4;
-        document.head.appendChild(s);
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = function(){ window.dataLayer.push(arguments); };
-        window.gtag('js', new Date());
-        window.gtag('config', GA4);
-      }
       if (GTM) {
         (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
         var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;
@@ -2158,6 +2156,17 @@
             value: 10,
             currency: 'USD'
           });
+          // Google Ads / GA4 mirror — secondary conversion candidate.
+          try {
+            if (typeof window.gtag === 'function') {
+              window.gtag('event', 'lead_intent_cta_click', {
+                cta_id: ctaId,
+                cta_text: (a.innerText || '').slice(0, 80),
+                value: 10,
+                currency: 'USD'
+              });
+            }
+          } catch (e) { /* noop */ }
         }
       }, { passive: true });
     });

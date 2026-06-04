@@ -300,6 +300,9 @@
       utm_content: u.utm_content || null,
       utm_term: u.utm_term || null,
       fbclid: u.fbclid || null,
+      gclid: u.gclid || null,
+      gbraid: u.gbraid || null,
+      wbraid: u.wbraid || null,
       _fbp: u._fbp || null,
       _fbc: u._fbc || null,
       landing_page: u.landing_url || (location.origin + '/'),
@@ -340,6 +343,22 @@
 
     var params = Object.assign({}, contactParams, { method: method });
     track('TelegramOpenAttempt', 'tg_open_attempt_' + method, params);
+
+    // Google Ads / GA4 mirror — independent of Meta Pixel/CAPI.
+    // Allows Google Ads to define this as a primary conversion via GA4 event import.
+    try {
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'telegram_open_attempt', {
+          method: method,
+          start_cta: START_PARAM,
+          route_type: WANT_BOT ? 'bot' : 'direct',
+          destination: TG_USERNAME,
+          lead_id: LEAD_ID,
+          value: 1,
+          currency: 'USD'
+        });
+      }
+    } catch (e) { /* noop */ }
 
     if (!flags.lead_sent) {
       setFlag('lead_sent');

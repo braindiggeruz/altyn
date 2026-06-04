@@ -154,6 +154,9 @@
       utm_content:  utm.utm_content || null,
       utm_term:     utm.utm_term || null,
       fbclid:       fbclid,
+      gclid:        gclid,
+      gbraid:       gbraid,
+      wbraid:       wbraid,
       _fbp:         fbp,
       _fbc:         fbc,
       landing_url:  landing_url,
@@ -192,6 +195,9 @@
       utm_content:  a.utm_content,
       utm_term:     a.utm_term,
       fbclid:       a.fbclid,
+      gclid:        a.gclid,
+      gbraid:       a.gbraid,
+      wbraid:       a.wbraid,
       traffic_source: a.traffic_source
     };
   }
