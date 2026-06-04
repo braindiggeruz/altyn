@@ -381,12 +381,56 @@
     if (device.in_app_browser_detected) {
       // tg:// is unreliable in IG/FB webview — fire the event but don't navigate.
       fireTelegramOpenAttempt('auto_deeplink');
+      fireGoogleAdsConversion('auto_deeplink', null);
       return;
     }
     fireTelegramOpenAttempt('auto_deeplink');
-    setTimeout(function () {
+    // Send Google Ads primary conversion before redirect; fallback 500ms guarantees Telegram opens.
+    fireGoogleAdsConversion('auto_deeplink', function () {
       try { window.location.href = bridgeTgAppUrl(); } catch (e) {}
-    }, 350);
+    });
+  }
+
+  // -------- Google Ads primary conversion (TelegramOpenAttempt) --------
+  // Uses event_callback so the conversion ping leaves the browser BEFORE redirect.
+  // Fallback timeout (500ms) guarantees Telegram opens even if callback never fires.
+  // Double-fire guard prevents the callback + fallback from both navigating.
+  var _gAdsConvFiredFor = {};
+  function fireGoogleAdsConversion(method, onAfter) {
+    var label = window.__GOOGLE_ADS_CONVERSION_LABEL__;
+    var awId  = window.__GOOGLE_ADS_AW_ID__ || 'AW-17919603900';
+    var fired = false;
+    function safeAfter() {
+      if (fired) return;
+      fired = true;
+      if (typeof onAfter === 'function') {
+        try { onAfter(); } catch (e) {}
+      }
+    }
+    // Guard: send the conversion at most once per method per page load.
+    if (_gAdsConvFiredFor[method]) {
+      // already sent; just run the redirect (if any) after small delay
+      if (typeof onAfter === 'function') setTimeout(safeAfter, 50);
+      return;
+    }
+    _gAdsConvFiredFor[method] = true;
+
+    try {
+      if (typeof window.gtag === 'function' && label) {
+        window.gtag('event', 'conversion', {
+          send_to: awId + '/' + label,
+          value: 1.0,
+          currency: 'USD',
+          transaction_id: LEAD_ID || '',
+          event_callback: safeAfter
+        });
+        // Fallback in case event_callback never fires (ad blockers, network).
+        setTimeout(safeAfter, 500);
+        return;
+      }
+    } catch (e) { /* noop */ }
+    // No gtag or no label configured yet → just run redirect after tiny delay.
+    if (typeof onAfter === 'function') setTimeout(safeAfter, 50);
   }
 
   // -------- Step 3: Bind UI --------
@@ -405,6 +449,9 @@
       openBtn.setAttribute('href', bridgeTgWebUrl());
       openBtn.addEventListener('click', function () {
         fireTelegramOpenAttempt('fallback_button');
+        // Best-effort: send Google Ads conversion alongside the click.
+        // Do NOT block navigation (link opens via native target=_blank/href).
+        fireGoogleAdsConversion('fallback_button', null);
       });
     }
 

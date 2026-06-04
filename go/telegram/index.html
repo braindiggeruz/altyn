@@ -24,6 +24,14 @@
     gtag('js', new Date());
     gtag('config', 'AW-17919603900');
   </script>
+  <!-- Google Ads primary conversion: TelegramOpenAttempt.
+       Fires inside altyn-bridge.js with event_callback before redirect.
+       Set __GOOGLE_ADS_CONVERSION_LABEL__ to the label from Google Ads
+       (the part after 'AW-17919603900/' in the conversion snippet's send_to). -->
+  <script>
+    window.__GOOGLE_ADS_AW_ID__ = 'AW-17919603900';
+    window.__GOOGLE_ADS_CONVERSION_LABEL__ = null;
+  </script>
 
   <style>
     :root {
@@ -108,8 +116,8 @@
 
   <!-- ===== Pixel + UTM + bridge logic ===== -->
   <script>window.__META_PIXEL_ID__ = '2475663283169925';</script>
-  <script src="/assets/altyn-utm.js?v=20260603-cta-to-bot"></script>
-  <script src="/assets/altyn-pixel.js?v=20260603-cta-to-bot"></script>
-  <script src="/assets/altyn-bridge.js?v=20260603-cta-to-bot"></script>
+  <script src="/assets/altyn-utm.js?v=20260604-gads-conv"></script>
+  <script src="/assets/altyn-pixel.js?v=20260604-gads-conv"></script>
+  <script src="/assets/altyn-bridge.js?v=20260604-gads-conv"></script>
 </body>
 </html>
