@@ -4,30 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-  <!-- ===== PRIMARY SEO ===== -->
-  <title>ALTYN Therapy — разбор сценария отношений за 10$</title>
-  <meta name="description" content="Он то рядом, то исчезает? Отношения повторяются по кругу? Личный диагностический разбор сценария с Алтын: 60 минут онлайн, 10$, бережно и конфиденциально." />
-  <meta name="keywords" content="разбор сценария, психолог онлайн, отношения по кругу, эмоциональная зависимость, гипнотерапевт Алтын, женский психолог Ташкент, тревога, одиночество" />
+    <!-- ===== PRIMARY SEO =====
+       Single source of truth for title / description / canonical / hreflang.
+       Keywords meta is intentionally absent (ignored by Google, can flag for spam). -->
+  <title>ALTYN Therapy — личный разбор отношений, которые идут по кругу</title>
+  <meta name="description" content="Бережный разбор повторяющегося сценария отношений с Алтын. 60 минут онлайн за 10$. Конфиденциально, спокойно, без оценок. Это не медицинская услуга." />
   <meta name="author" content="Алтын" />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://altyn-therapy.uz/" />
+  <link rel="canonical" href="https://www.altyn-therapy.uz/" />
+  <link rel="alternate" hreflang="ru" href="https://www.altyn-therapy.uz/" />
+  <link rel="alternate" hreflang="uz" href="https://www.altyn-therapy.uz/uz/" />
+  <link rel="alternate" hreflang="x-default" href="https://www.altyn-therapy.uz/" />
 
-  <!-- ===== OPEN GRAPH ===== -->
+  <!-- ===== OPEN GRAPH (Facebook / Telegram / VK / LinkedIn) ===== -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://altyn-therapy.uz/" />
-  <meta property="og:title" content="ALTYN Therapy — разбор сценария отношений за 10$" />
-  <meta property="og:description" content="Личный диагностический разбор сценария: 60 минут онлайн, 10$, бережно и конфиденциально." />
-  <meta property="og:image" content="https://altyn-therapy.uz/og-image.jpg" />
+  <meta property="og:url" content="https://www.altyn-therapy.uz/" />
+  <meta property="og:title" content="ALTYN Therapy — личный разбор отношений, которые идут по кругу" />
+  <meta property="og:description" content="Бережный разбор повторяющегося сценария отношений. 60 минут онлайн за 10$. Конфиденциально и без оценок." />
+  <meta property="og:image" content="https://www.altyn-therapy.uz/og-image.jpg" />
+  <meta property="og:image:secure_url" content="https://www.altyn-therapy.uz/og-image.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ALTYN Therapy — личный разбор повторяющегося сценария отношений" />
   <meta property="og:locale" content="ru_RU" />
+  <meta property="og:locale:alternate" content="uz_UZ" />
   <meta property="og:site_name" content="ALTYN Therapy" />
 
   <!-- ===== TWITTER ===== -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ALTYN Therapy — разбор сценария за 10$" />
-  <meta name="twitter:description" content="Личный диагностический разбор сценария отношений. 60 минут онлайн. 10$. Бережно и конфиденциально." />
-  <meta name="twitter:image" content="https://altyn-therapy.uz/og-image.jpg" />
+  <meta name="twitter:title" content="ALTYN Therapy — личный разбор отношений, которые идут по кругу" />
+  <meta name="twitter:description" content="Бережный разбор повторяющегося сценария отношений. 60 минут онлайн за 10$. Конфиденциально и без оценок." />
+  <meta name="twitter:image" content="https://www.altyn-therapy.uz/og-image.jpg" />
+  <meta name="twitter:image:alt" content="ALTYN Therapy — личный разбор повторяющегося сценария отношений" />
 
   <!-- ===== FAVICON ===== -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -35,28 +44,126 @@
 
   <!-- ===== SCHEMA.ORG ===== -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    "name": "ALTYN Therapy",
-    "description": "Личный диагностический разбор сценария отношений. 60 минут онлайн. 10$.",
-    "url": "https://altyn-therapy.uz",
-    "areaServed": "Online",
-    "provider": {
-      "@type": "Person",
-      "name": "Алтын",
-      "jobTitle": "Гипнотерапевт"
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.altyn-therapy.uz/#org",
+      "name": "ALTYN Therapy",
+      "url": "https://www.altyn-therapy.uz/",
+      "logo": "https://www.altyn-therapy.uz/favicon.svg",
+      "areaServed": "Uzbekistan",
+      "sameAs": [
+        "https://t.me/altyntherapybot"
+      ]
     },
-    "offers": {
-      "@type": "Offer",
-      "name": "Личный диагностический разбор сценария",
-      "price": "10",
-      "priceCurrency": "USD",
-      "description": "60 минут онлайн. Бережно. Конфиденциально. Без оценок."
+    {
+      "@type": "WebSite",
+      "@id": "https://www.altyn-therapy.uz/#site",
+      "name": "ALTYN Therapy",
+      "url": "https://www.altyn-therapy.uz/",
+      "inLanguage": "ru",
+      "publisher": {
+        "@id": "https://www.altyn-therapy.uz/#org"
+      }
+    },
+    {
+      "@type": "Service",
+      "@id": "https://www.altyn-therapy.uz/#service",
+      "name": "Личный разбор повторяющегося сценария отношений",
+      "serviceType": "Бережный личный разбор",
+      "description": "Онлайн-разбор повторяющегося сценария отношений с Алтын. Это не медицинская услуга и не консультация врача.",
+      "areaServed": "Uzbekistan",
+      "provider": {
+        "@id": "https://www.altyn-therapy.uz/#org"
+      },
+      "availableChannel": {
+        "@type": "ServiceChannel",
+        "serviceUrl": "https://www.altyn-therapy.uz/",
+        "availableLanguage": [
+          "ru",
+          "uz"
+        ]
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "10",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "url": "https://www.altyn-therapy.uz/",
+        "category": "ConsultingService"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://www.altyn-therapy.uz/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Это медицинская услуга?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Нет. Это личный разбор повторяющегося сценария в отношениях. Он не заменяет консультацию врача или медицинскую помощь."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Что будет на разборе?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Вы расскажете ситуацию, вместе с Алтын посмотрите, что повторяется, где запускается привычная реакция и какой первый шаг может вернуть больше ясности."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Можно ли пройти онлайн?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да, формат онлайн. Можно из любой точки, где вам спокойно и удобно."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Сколько стоит?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "60 минут онлайн — 10$."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Куда ведут кнопки?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "В Telegram-бот ALTYN Therapy, где можно пройти короткий тест и оставить заявку на разбор."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Это подойдёт, если я пока не понимаю, что именно происходит?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да. Тест и разбор как раз помогают бережно сформулировать, какой сценарий может повторяться."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://www.altyn-therapy.uz/#breadcrumbs",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Главная",
+          "item": "https://www.altyn-therapy.uz/"
+        }
+      ]
     }
-  }
+  ]
+}
   </script>
-
   <!-- ===== FONTS ===== -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1087,13 +1194,13 @@
     <div class="container">
       <div class="hero-grid">
         <div class="hero-text">
-          <div class="eyebrow">Личный диагностический разбор</div>
+          <div class="eyebrow">Личный разбор сценария</div>
           <h1>Он <em>то&nbsp;рядом,</em> то&nbsp;исчезает?</h1>
           <p class="hero-sub">
             Если вы снова ждёте сообщение и всё понимаете головой, но внутри не отпускает — возможно, это повторяющийся сценарий.
           </p>
           <div class="offer-card" data-testid="hero-offer-card">
-            <div class="offer-title">Личный диагностический разбор сценария</div>
+            <div class="offer-title">Личный разбор повторяющегося сценария</div>
             <div class="offer-meta">60 минут онлайн · 10$</div>
           </div>
           <div class="markers" aria-label="Принципы работы">
@@ -1143,7 +1250,7 @@
         <div class="recognize-item reveal">Отношения повторяются по кругу — с разными людьми, но один и тот же сюжет</div>
         <div class="recognize-item reveal">Он появляется, даёт надежду и снова отдаляется</div>
         <div class="recognize-item reveal">Вы устали быть сильной и держать всё на себе</div>
-        <div class="recognize-item reveal">Внутри тревога, пустота и одиночество</div>
+        <div class="recognize-item reveal">Внутри тяжело, мало опоры и тепла</div>
         <div class="recognize-item reveal">Вы заботитесь обо всех, но сами остались без опоры</div>
         <div class="recognize-item reveal">После расставания всё ещё не отпускает</div>
         <div class="recognize-item reveal">Вы всё понимаете умом, но внутри как будто не свободны</div>
@@ -1164,11 +1271,11 @@
       </div>
       <div class="what-is-wrap">
         <div class="what-is-quote reveal">
-          Разбор сценария — это диагностическая встреча, где Алтын помогает увидеть повторяющийся внутренний паттерн: почему вы выбираете похожие отношения, почему терпите, ждёте, спасаете или боитесь довериться.
+          Разбор сценария — это бережная встреча, где Алтын помогает увидеть повторяющийся внутренний паттерн: почему вы выбираете похожие отношения, почему терпите, ждёте, спасаете или боитесь довериться.
         </div>
         <div class="what-is-note reveal">
-          <p><strong>Это не диагноз и не обещание «вылечить».</strong></p>
-          <p style="margin:0;">Это бережная диагностика и первый шаг к ясности. Никакого давления, никакой роли «пациента» — только спокойный разговор, в котором становится видно главное.</p>
+          <p><strong>Это не медицинская услуга и не консультация врача.</strong></p>
+          <p style="margin:0;">Это бережный разбор и первый шаг к ясности. Никакого давления, никакой роли «пациента» — только спокойный разговор, в котором становится видно главное.</p>
         </div>
       </div>
     </div>
@@ -1187,7 +1294,7 @@
           <p>Вы коротко рассказываете, что повторяется. Без оценок и без обязательств «открываться сразу».</p>
         </div>
         <div class="step reveal">
-          <h3>Диагностика сценария</h3>
+          <h3>Бережный разбор сценария</h3>
           <p>Алтын помогает увидеть паттерн: почему ситуация повторяется и где теряется опора.</p>
         </div>
         <div class="step reveal">
@@ -1211,7 +1318,7 @@
         <div class="segment reveal">«Устала быть сильной»</div>
         <div class="segment reveal">«После развода / расставания»</div>
         <div class="segment reveal">«Мама и жена, которая всех держит»</div>
-        <div class="segment reveal">«Тревога и одиночество»</div>
+        <div class="segment reveal">«Усталость и одиночество»</div>
       </div>
     </div>
   </section>
@@ -1223,7 +1330,7 @@
         <div class="eyebrow">Почему 10$</div>
         <div class="price-mark">10<span style="font-size:0.5em;color:var(--gold);">$</span></div>
         <h2>Доступный первый шаг.</h2>
-        <p>10$ — это доступная диагностическая встреча, чтобы безопасно сделать первый шаг, понять формат и увидеть свой сценарий без большого финансового барьера.</p>
+        <p>10$ — это доступный первый шаг, чтобы спокойно увидеть свой сценарий, понять формат и увидеть свой сценарий без большого финансового барьера.</p>
         <div class="micro">Без подписок · Без давления · Без обязательств продолжать</div>
         <div style="margin-top:32px;">
           <a class="btn btn-primary" href="/go/telegram?cta=why10_direct" data-cta="why10_direct" data-testid="why10-cta">Хочу разбор за 10$</a>
@@ -1249,7 +1356,7 @@
           </div>
           <div class="safety-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
-            <div><strong>Без осуждения</strong><span>Никаких диагнозов, советов и нравоучений.</span></div>
+            <div><strong>Без осуждения</strong><span>Без оценок, советов и нравоучений.</span></div>
           </div>
           <div class="safety-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
@@ -1326,10 +1433,10 @@
           <div class="eyebrow">Об&nbsp;Алтын</div>
           <h2>Бережный взгляд на&nbsp;то, что <em>повторяется.</em></h2>
           <p>
-            Алтын помогает женщинам бережно увидеть повторяющиеся сценарии в отношениях, тревоге и внутренней усталости. Без давления, без оценок и без обещаний чудес.
+            Алтын помогает женщинам бережно увидеть повторяющиеся сценарии в отношениях и состояние внутренней усталости. Без давления, без оценок и без обещаний чудес.
           </p>
           <p>
-            В работе — спокойный диагностический разговор, в котором становится понятнее, почему ситуация повторяется и какой первый шаг можно сделать. Это пространство, где можно быть собой и не объяснять, почему «уже не получается одной».
+            В работе — спокойный, бережный разговор, в котором становится понятнее, почему ситуация повторяется и какой первый шаг можно сделать. Это пространство, где можно быть собой и не объяснять, почему «уже не получается одной».
           </p>
           <div class="about-cta">
             <a class="btn btn-primary" href="/go/telegram?cta=about_direct" data-cta="about_direct" data-testid="about-cta">Хочу разбор с Алтын</a>
@@ -1349,11 +1456,11 @@
       <div class="faq-list">
         <details class="faq-item reveal" data-testid="faq-item">
           <summary>Что я получу за 10$?</summary>
-          <p>60 минут онлайн с Алтын — диагностический разбор вашего сценария. Вы увидите повторяющийся паттерн и получите направление, какой первый шаг можно сделать дальше.</p>
+          <p>60 минут онлайн с Алтын — бережный разбор вашего сценария. Вы увидите повторяющийся паттерн и получите направление, какой первый шаг можно сделать дальше.</p>
         </details>
         <details class="faq-item reveal" data-testid="faq-item">
           <summary>Это терапия или консультация?</summary>
-          <p>Это диагностическая встреча, а не курс терапии. Цель — увидеть сценарий и понять, что с ним делать. Решение продолжать или нет — всегда за вами.</p>
+          <p>Это бережный разбор, а не курс терапии или медицинская консультация. Цель — увидеть сценарий и понять, что с ним делать. Решение продолжать или нет — всегда за вами.</p>
         </details>
         <details class="faq-item reveal" data-testid="faq-item">
           <summary>Можно ли анонимно?</summary>
@@ -1519,7 +1626,7 @@
       {
         q: 'Что вы чаще всего чувствуете внутри?',
         options: [
-          { label: 'Тревогу', s: 'waiting' },
+          { label: 'Сильное напряжение', s: 'waiting' },
           { label: 'Одиночество', s: 'strong' },
           { label: 'Вину', s: 'saving' },
           { label: 'Ожидание', s: 'waiting' },
@@ -1562,7 +1669,7 @@
     var RESULTS = {
       waiting: {
         title: 'Ждущая',
-        desc: 'Вы часто оказываетесь в роли той, кто ждёт: сообщения, тепла, того самого «давай попробуем снова». Внутри — тревога и надежда вперемешку. Этот сценарий не про слабость — это про привычку строить близость через ожидание. На разборе мы увидим, откуда он начался и где можно опереться по-другому.'
+        desc: 'Вы часто оказываетесь в роли той, кто ждёт: сообщения, тепла, того самого «давай попробуем снова». Внутри — смешанные чувства, надежда и сомнение. Этот сценарий не про слабость — это про привычку строить близость через ожидание. На разборе мы увидим, откуда он начался и где можно опереться по-другому.'
       },
       strong: {
         title: 'Сильная без опоры',
@@ -1741,5 +1848,33 @@
     });
   })();
   </script>
+
+<!-- ===== LEGAL FOOTER (added by social-safe SEO patch) ===== -->
+<style>
+.altyn-legal-footer{font-family:'Manrope',sans-serif;background:#1a0d11;color:#d3c4b0;
+  padding:28px 20px 32px;text-align:center;font-size:13px;line-height:1.7;letter-spacing:.02em}
+.altyn-legal-footer a{color:#e9c98a;text-decoration:none;margin:0 8px;border-bottom:1px solid rgba(233,201,138,.25);padding-bottom:1px}
+.altyn-legal-footer a:hover{border-color:#e9c98a}
+.altyn-legal-footer .altyn-legal-disclaimer{max-width:720px;margin:14px auto 0;font-size:12px;color:#8c7d6a;font-style:italic}
+.altyn-legal-footer .altyn-legal-row{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 8px}
+</style>
+<footer class="altyn-legal-footer" role="contentinfo" data-testid="legal-footer">
+  <div class="altyn-legal-row">
+    <a href="/privacy/" data-testid="footer-privacy">Privacy Policy</a>
+    <span style="opacity:.4">·</span>
+    <a href="/terms/" data-testid="footer-terms">Terms</a>
+    <span style="opacity:.4">·</span>
+    <a href="/contact/" data-testid="footer-contact">Контакты</a>
+    <span style="opacity:.4">·</span>
+    <a href="/disclaimer/" data-testid="footer-disclaimer">Disclaimer</a>
+    <span style="opacity:.4">·</span>
+    <a href="/uz/" data-testid="footer-uz" hreflang="uz">O'zbekcha</a>
+  </div>
+  <div class="altyn-legal-disclaimer">
+    ALTYN Therapy предлагает бережный разбор повторяющегося сценария в отношениях.
+    Это не медицинская услуга, не психиатрическая помощь и не замена консультации врача.
+  </div>
+</footer>
+<!-- /LEGAL FOOTER -->
 </body>
 </html>
